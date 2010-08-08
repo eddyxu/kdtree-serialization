@@ -1224,8 +1224,8 @@ namespace KDTree
         _M_set_root(root);
 
         if ( _M_get_root() ) {
-          _M_set_leftmost( node_type::_S_minimum(_M_get_root()));
-          _M_set_rightmost( node_type::_S_maximum(_M_get_root()));
+          _M_set_leftmost( _Node<_Val>::_S_minimum(_M_get_root()));
+          _M_set_rightmost( _Node<_Val>::_S_maximum(_M_get_root()));
           _M_root->_M_parent = &_M_header;
         } else {
           _M_set_leftmost( &_M_header );

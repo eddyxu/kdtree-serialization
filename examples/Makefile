@@ -1,10 +1,13 @@
-all: test_kdtree test_hayne
+all: test_kdtree test_hayne test_serialization
 
 test_kdtree: test_kdtree.cpp
 	g++ -I.. -Wall -ansi -pedantic -g -O2 -o test_kdtree test_kdtree.cpp
 
 test_hayne: test_hayne.cpp
 	g++ -I.. -Wall -ansi -pedantic -g -O2 -o test_hayne test_hayne.cpp
+
+test_serialization: test_serialization.cpp
+	g++ -I.. -Wall -ansi -pedantic -g -O2 -lboost_serialization -o $@ $^
 
 all_gcc: test_kdtree-gcc3.4 test_kdtree-gcc4.3 test_kdtree-gcc4.2
 
