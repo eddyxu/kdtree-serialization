@@ -14,6 +14,11 @@
 #include <cstddef>
 #include <cmath>
 
+#ifdef KDTREE_SERIALIZATION
+#  include <boost/serialization/base_object.hpp>
+#  include <boost/serialization/split_member.hpp>
+#endif 
+
 namespace KDTree
 {
   struct _Node_base
@@ -58,6 +63,38 @@ namespace KDTree
             _Base_ptr const __LEFT = NULL,
             _Base_ptr const __RIGHT = NULL)
         : _Node_base(__PARENT, __LEFT, __RIGHT), _M_value(__VALUE) {}
+
+#ifdef KDTREE_SERIALIZATION
+      friend class boost::serialization::access;
+      template<class Archive>
+      void save(Archive & ar, const unsigned int version) const
+      {
+        ar.register_type(static_cast< _Link_type>(NULL));
+        _Link_type left = static_cast<_Link_type>(_M_left);
+        _Link_type right = static_cast<_Link_type>(_M_right);
+        ar & left & right;
+        ar & _M_value;
+      }
+
+      template<class Archive>
+      void load(Archive & ar, const unsigned int version)
+      {
+        ar.register_type(static_cast< _Link_type>(NULL));
+        _Link_type left, right;
+        ar & left & right;
+        ar & _M_value;
+        if (left) {
+          left->_M_parent = this;
+        } 
+        if (right) {
+          right->_M_parent = this;
+        }
+        _M_left = left;
+        _M_right = right;
+      }
+
+      BOOST_SERIALIZATION_SPLIT_MEMBER()
+#endif 
 
 #ifdef KDTREE_DEFINE_OSTREAM_OPERATORS
 

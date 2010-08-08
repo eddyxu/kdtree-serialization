@@ -73,6 +73,11 @@
 #  include <stack>
 #endif
 
+#ifdef KDTREE_SERIALIZATION
+#  include <boost/serialization/split_member.hpp>
+#  include <boost/serialization/string.hpp>
+#endif 
+
 #include <cmath>
 #include <cstddef>
 #include <cassert>
@@ -1197,6 +1202,41 @@ namespace KDTree
       _Acc _M_acc;
       _Cmp _M_cmp;
       _Dist _M_dist;
+
+#ifdef KDTREE_SERIALIZATION
+      friend class boost::serialization::access;
+      template<class Archive>
+      void save(Archive & ar, const unsigned int version) const
+      {
+        ar.register_type(static_cast< _Link_type>(NULL));
+        _Link_type root = static_cast<_Link_type>(_M_root);
+        ar & root; 
+        ar & _M_count;
+      }
+
+      template<class Archive>
+      void load(Archive & ar, const unsigned int version)
+      {
+        ar.register_type(static_cast<_Link_type>(NULL));
+        _Link_type root;
+        ar & root;
+        ar & _M_count;
+        _M_set_root(root);
+
+        if ( _M_get_root() ) {
+          _M_set_leftmost( node_type::_S_minimum(_M_get_root()));
+          _M_set_rightmost( node_type::_S_maximum(_M_get_root()));
+          _M_root->_M_parent = &_M_header;
+        } else {
+          _M_set_leftmost( &_M_header );
+          _M_set_rightmost( &_M_header );
+        }
+
+        _M_header._M_parent = NULL;
+      }
+
+      BOOST_SERIALIZATION_SPLIT_MEMBER()
+#endif 
 
 #ifdef KDTREE_DEFINE_OSTREAM_OPERATORS
       friend std::ostream&
